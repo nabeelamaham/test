@@ -1,0 +1,11 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+client_list:
+    path: /client/list
+    controller: App\Controller\ClientController::list
+
+client_view:
+    path: /client/view/{id}
+    controller: App\Controller\ClientController::view

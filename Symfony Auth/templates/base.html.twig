@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {# Run `composer require symfony/webpack-encore-bundle`
+           and uncomment the following Encore helpers to start using Symfony UX #}
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+
+          <link rel="stylesheet" type="text/css" href="/css/base.css"/>
+    
+    </head>
+    <body>
+        <header>Test Header</header>
+
+        {% block body %}{% endblock %}
+
+        <footer>Test Footer</footer>
+    </body>
+</html>
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+            
+              <!-- Renders app.js & a webpack runtime.js file
+                <script src="/build/runtime.js" defer></script>
+                <script src="/build/app.js" defer></script>
+                See note below about the "defer" attribute -->
+        {% endblock %}
