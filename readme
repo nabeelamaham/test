@@ -1,1 +1,1448 @@
 
+# Project Title - "5G Network Environment"
+
+
+<h2 align="center">Team Open5gs (WS 23/24)</h2>
+
+<p align="center">
+    <strong>-Team Members-</strong>
+</p>
+
+<p align="center">
+    Nasir Ishaq (144979) <br>
+    Ankita Talande (1427349) <br>
+    Naveed Ahmad (1393211)
+</p>
+
+
+## Project overview
+<!-- PROJECT LOGO -->
+
+
+
+*   [X] Milestone 1 -Setting up a complete 5G environment
+*   [X] Milestone 2 -Create multiple UEs, gNBs and U-Planes
+*   [X] Milestone 3 -Network Slicing - select UPF based on S-NSSAI
+*   [X] Milestone 4 -Select nearby UPF according to the connected gNodeB
+
+
+This readme describes the configuation that uses Open5gs,Ueransim, MongoDB and multiple gNBs and UEs along with netwrok setup, testing and log for each Milestones.
+
+
+
+## Introduction
+A advanced strategy for delivering rapid 5G services involves the utilization of a 5G standalone system utilizing Open5GS components such as UPF (User Plane Function), SMF (Session Management Function), NSSF (Network Slice Selection Function), UE (User Equipment), and gNg (5G Next Generation Core network).
+
+This deployment of a 5G standalone project ensures comprehensive 5G connectivity and functionality, paving the way for cutting-edge applications and services like ultra-low latency applications, extensive deployments, and network slicing ,DDOS attacks and prevention.
+
+
+## Getting Started
+
+## General Environment setup
+
+| Software | Version |
+|---|---|
+| Linux based VM | Ubuntu - v20.04 Desktop |
+| Open5gs | V2.7.0 |
+| Ueransim | V3.2.6 |
+| Wireshark | V4.0.10 |
+
+## Download the repository
+Use git clone to download this repository into your computer.
+```
+git clone https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs.git
+```
+
+## Project Milestones
+
+
+## Milestone 1-Setting up a complete 5G environment 
+
+
+## Install Open5gs
+
+```bash
+# Commands to install Mongodb
+curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+apt-key list
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.4.list
+sudo apt update
+sudo apt install mongodb-org
+sudo systemctl start mongod.service
+sudo systemctl status mongod
+sudo systemctl enable mongod
+
+# Commands to install Open5GS
+sudo add-apt-repository ppa:open5gs/latest
+sudo apt update
+sudo apt install open5gs
+```
+Detailed script: [Open5gs Installation Script](https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Scripts/Milestone%201/Open5GS%20Installation.txt)
+## Install Ueransim
+
+```bash
+# Commands to install Ueransim
+cd ~/UERANSIM
+make
+```
+Detailed script: [UERANSIM Installation Script](https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Scripts/Milestone%201/Open5GS%20Installation.txt)
+
+## Install WebUI
+```bash
+# Commands to install WebUI
+curl -fsSL https://open5gs.org/open5gs/assets/webui/install | sudo -E bash -
+```
+Connect to http://localhost:9999 and login with admin account.
+
+Username : admin ,
+Password : 9999
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%201/webUI.jpeg" width="700" alt="Figure 1.2 - WebUI with one subcriber detail">
+  <br>
+  <sub><sup>Figure 1.2 - WebUI with one subcriber detail</sup></sub>
+</p>
+
+## Testing
+```bash
+# Commands to run gnb
+
+ubuntu@ubuntu-VirtualBox:~/UERANSIM/config$ ../build/nr-gnb -c gnb1.yaml
+UERANSIM v3.2.6
+[2024-02-24 10:07:52.324] [sctp] [info] Trying to establish SCTP connection... (127.0.0.5:38412)
+[2024-02-24 10:07:52.326] [sctp] [info] SCTP connection established (127.0.0.5:38412)
+[2024-02-24 10:07:52.326] [sctp] [debug] SCTP association setup ascId[9]
+[2024-02-24 10:07:52.326] [ngap] [debug] Sending NG Setup Request
+[2024-02-24 10:07:52.332] [ngap] [debug] NG Setup Response received
+[2024-02-24 10:07:52.332] [ngap] [info] NG Setup procedure is successful
+[2024-02-24 10:07:57.995] [rrc] [debug] UE[1] new signal detected
+[2024-02-24 10:07:57.996] [rrc] [info] RRC Setup for UE[1]
+[2024-02-24 10:07:57.997] [ngap] [debug] Initial NAS message received from UE[1]
+[2024-02-24 10:07:58.025] [ngap] [debug] Initial Context Setup Request received
+[2024-02-24 10:07:58.249] [ngap] [info] PDU session resource(s) setup for UE[1] count[1]
+```
+
+```bash
+# Commands to run ue
+
+ubuntu@ubuntu-VirtualBox:~/UERANSIM/config$ sudo ../build/nr-ue -c ue1.yaml
+[sudo] password for ubuntu: 
+UERANSIM v3.2.6
+[2024-02-24 10:07:57.995] [nas] [info] UE switches to state [MM-DEREGISTERED/PLMN-SEARCH]
+[2024-02-24 10:07:57.995] [rrc] [debug] New signal detected for cell[1], total [1] cells in coverage
+[2024-02-24 10:07:57.995] [nas] [info] Selected plmn[999/70]
+[2024-02-24 10:07:57.995] [rrc] [info] Selected cell plmn[999/70] tac[1] category[SUITABLE]
+[2024-02-24 10:07:57.995] [nas] [info] UE switches to state [MM-DEREGISTERED/PS]
+[2024-02-24 10:07:57.995] [nas] [info] UE switches to state [MM-DEREGISTERED/NORMAL-SERVICE]
+[2024-02-24 10:07:57.995] [nas] [debug] Initial registration required due to [MM-DEREG-NORMAL-SERVICE]
+[2024-02-24 10:07:57.995] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2024-02-24 10:07:57.995] [nas] [debug] Sending Initial Registration
+[2024-02-24 10:07:57.996] [nas] [info] UE switches to state [MM-REGISTER-INITIATED]
+[2024-02-24 10:07:57.996] [rrc] [debug] Sending RRC Setup Request
+[2024-02-24 10:07:57.997] [rrc] [info] RRC connection established
+[2024-02-24 10:07:57.997] [rrc] [info] UE switches to state [RRC-CONNECTED]
+[2024-02-24 10:07:57.997] [nas] [info] UE switches to state [CM-CONNECTED]
+[2024-02-24 10:07:58.006] [nas] [debug] Authentication Request received
+[2024-02-24 10:07:58.006] [nas] [debug] Received SQN [000000000081]
+[2024-02-24 10:07:58.006] [nas] [debug] SQN-MS [000000000000]
+[2024-02-24 10:07:58.012] [nas] [debug] Security Mode Command received
+[2024-02-24 10:07:58.012] [nas] [debug] Selected integrity[2] ciphering[0]
+[2024-02-24 10:07:58.025] [nas] [debug] Registration accept received
+[2024-02-24 10:07:58.025] [nas] [info] UE switches to state [MM-REGISTERED/NORMAL-SERVICE]
+[2024-02-24 10:07:58.025] [nas] [debug] Sending Registration Complete
+[2024-02-24 10:07:58.025] [nas] [info] Initial Registration is successful
+[2024-02-24 10:07:58.025] [nas] [debug] Sending PDU Session Establishment Request
+[2024-02-24 10:07:58.025] [nas] [debug] UAC access attempt is allowed for identity[0], category[MO_sig]
+[2024-02-24 10:07:58.228] [nas] [debug] Configuration Update Command received
+[2024-02-24 10:07:58.249] [nas] [debug] PDU Session Establishment Accept received
+[2024-02-24 10:07:58.249] [nas] [info] PDU Session establishment is successful PSI[1]
+[2024-02-24 10:07:58.261] [app] [info] Connection setup for PDU session[1] is successful, TUN interface[uesimtun0, 10.45.0.2] is up.
+
+```
+
+## Logging
+The Open5GS log when executed is as follows.
+```bash
+==> /var/log/open5gs/amf.log <==
+02/24 10:07:58.015: [sbi] INFO: [UDM] (SCP-discover) NF registered [8e4de76e-d2ec-41ee-9f69-579a87efe7ac:1] (../lib/sbi/path.c:211)
+
+==> /var/log/open5gs/amf.log <==
+02/24 10:07:58.018: [sbi] WARNING: [UDM] (SCP-discover) NF has already been added [8e4de76e-d2ec-41ee-9f69-579a87efe7ac:2] (../lib/sbi/path.c:216)
+02/24 10:07:58.228: [gmm] INFO: [imsi-999700000000001] Registration complete (../src/amf/gmm-sm.c:2146)
+02/24 10:07:58.228: [amf] INFO: [imsi-999700000000001] Configuration update command (../src/amf/nas-path.c:612)
+02/24 10:07:58.228: [gmm] INFO:     UTC [2024-02-24T09:07:58] Timezone[0]/DST[0] (../src/amf/gmm-build.c:559)
+02/24 10:07:58.228: [gmm] INFO:     LOCAL [2024-02-24T10:07:58] Timezone[3600]/DST[0] (../src/amf/gmm-build.c:564)
+02/24 10:07:58.228: [amf] INFO: [Added] Number of AMF-Sessions is now 1 (../src/amf/context.c:2571)
+02/24 10:07:58.228: [gmm] INFO: UE SUPI[imsi-999700000000001] DNN[internet] S_NSSAI[SST:1 SD:0xffffff] smContextRef [NULL] (../src/amf/gmm-handler.c:1241)
+02/24 10:07:58.228: [gmm] INFO: SMF Instance [8f9efbf8-d2ec-41ee-b0a7-71345e1be646] (../src/amf/gmm-handler.c:1280)
+
+==> /var/log/open5gs/smf.log <==
+02/24 10:07:58.238: [smf] INFO: [Added] Number of SMF-UEs is now 1 (../src/smf/context.c:1019)
+02/24 10:07:58.238: [smf] INFO: [Added] Number of SMF-Sessions is now 1 (../src/smf/context.c:3068)
+
+==> /var/log/open5gs/smf.log <==
+02/24 10:07:58.241: [sbi] INFO: [UDM] (SCP-discover) NF registered [8e4de76e-d2ec-41ee-9f69-579a87efe7ac:1] (../lib/sbi/path.c:211)
+
+==> /var/log/open5gs/scp.log <==
+02/24 10:07:58.243: [sbi] INFO: [NULL] (NRF-discover) NF registered [8e0b9f26-d2ec-41ee-a8c9-c7ea9f7acef2:1] (../lib/sbi/nnrf-handler.c:1052)
+02/24 10:07:58.243: [sbi] INFO: [BSF] (NF-discover) NF Profile updated [8e0b9f26-d2ec-41ee-a8c9-c7ea9f7acef2:1] (../lib/sbi/nnrf-handler.c:1095)
+
+==> /var/log/open5gs/pcf.log <==
+02/24 10:07:58.244: [sbi] INFO: [BSF] (SCP-discover) NF registered [8e0b9f26-d2ec-41ee-a8c9-c7ea9f7acef2:1] (../lib/sbi/path.c:211)
+
+==> /var/log/open5gs/smf.log <==
+02/24 10:07:58.245: [smf] INFO: UE SUPI[imsi-999700000000001] DNN[internet] IPv4[10.45.0.2] IPv6[] (../src/smf/npcf-handler.c:539)
+
+==> /var/log/open5gs/upf.log <==
+02/24 10:07:58.246: [upf] INFO: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:208)
+02/24 10:07:58.246: [gtp] INFO: gtp_connect() [127.0.0.4]:2152 (../lib/gtp/path.c:60)
+02/24 10:07:58.246: [upf] INFO: UE F-SEID[UP:0x400 CP:0x6d1] APN[internet] PDN-Type[1] IPv4[10.45.0.2] IPv6[] (../src/upf/context.c:485)
+02/24 10:07:58.246: [upf] INFO: UE F-SEID[UP:0x400 CP:0x6d1] APN[internet] PDN-Type[1] IPv4[10.45.0.2] IPv6[] (../src/upf/context.c:485)
+
+==> /var/log/open5gs/smf.log <==
+02/24 10:07:58.246: [gtp] INFO: gtp_connect() [127.0.0.7]:2152 (../lib/gtp/path.c:60)
+
+==> /var/log/open5gs/upf.log <==
+02/24 10:07:58.250: [gtp] INFO: gtp_connect() [127.0.0.200]:2152 (../lib/gtp/path.c:60)
+
+==> /var/log/open5gs/scp.log <==
+02/24 10:07:58.251: [sbi] WARNING: [UDM] (NRF-discover) NF has already been added [8e4de76e-d2ec-41ee-9f69-579a87efe7ac:1] (../lib/sbi/nnrf-handler.c:1057)
+02/24 10:07:58.251: [sbi] WARNING: NF EndPoint(addr) updated [127.0.0.12:80] (../lib/sbi/context.c:2174)
+02/24 10:07:58.251: [sbi] WARNING: NF EndPoint(addr) updated [127.0.0.12:7777] (../lib/sbi/context.c:1917)
+02/24 10:07:58.251: [sbi] WARNING: NF EndPoint(addr) updated [127.0.0.12:7777] (../lib/sbi/context.c:1917)
+02/24 10:07:58.251: [sbi] WARNING: NF EndPoint(addr) updated [127.0.0.12:7777] (../lib/sbi/context.c:1917)
+02/24 10:07:58.251: [sbi] INFO: [UDM] (NF-discover) NF Profile updated [8e4de76e-d2ec-41ee-9f69-579a87efe7ac:1] (../lib/sbi/nnrf-handler.c:1095)
+==> /var/log/open5gs/amf.log <==
+02/24 10:07:58.254: [amf] INFO: [imsi-999700000000001:1:11][0:0:NULL] /nsmf-pdusession/v1/sm-contexts/{smContextRef}/modify (../src/amf/nsmf-handler.c:837)
+
+```
+
+
+Just in case, make sure it matches the IP address of the UE1's TUNnel interface.
+
+
+```bash
+    uesimtun0: <POINTOPOINT,PROMISC,NOTRAILERS,UP,LOWER_UP> mtu 1400 qdisc fq_codel state UNKNOWN group default qlen 500
+    link/none 
+    inet 10.45.0.2/32 scope global uesimtun0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::8d23:82b0:7621:d51b/64 scope link stable-privacy 
+       valid_lft forever preferred_lft forever
+```
+	   
+	   
+  curl google.com in UE1
+
+```bash
+ubuntu@ubuntu-VirtualBox:~/UERANSIM/build$ sh nr-binder 10.45.0.2 curl google.com
+<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
+<TITLE>301 Moved</TITLE></HEAD><BODY>
+<H1>301 Moved</H1>
+The document has moved
+<A HREF="http://www.google.com/">here</A>.
+</BODY></HTML>
+ubuntu@ubuntu-Virt
+
+```  
+
+## Milestone 2-Create multiple UEs, gNBs and U-Planes
+
+By increasing the number of UEs and gNBs,simulate various levels of network load, allowing to analyze how the network performs under different traffic conditions. This is crucial for network planning and optimization.
+
+Successfully implemented multiple gNBs, UEs, and U-Planes in milestone 3, milestone 4 and milestone 5 for paving the way to accomplish several key milestones including enabling Internet access based on S-NSSAI, simulating a DDoS attack, and dynamically selecting the nearest UPF based on the connected gNodeB. This comprehensive setup not only demonstrates the versatility and scalability of the 5G network architecture but also underscores its resilience in the face of various challenges and security threats.
+
+## Milestone 3-Network Slicing-Select UPF based on S-NSSAI
+
+
+The minimum configuration which is set as a condition is:
+ * The UE selects a pair of SMF and UPF based on S-NSSAI.
+ * 5GC - Open5GS [Open5gs Installation Script](https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Scripts/Milestone%201/Open5GS%20Installation.txt)
+ * UE / RAN - UERANSIM [UERANSIM Installation Script](https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Scripts/Milestone%201/Open5GS%20Installation.txt)
+
+
+
+
+| VM # | SW & Role | IP address | OS | Memory (Min) | HDD (Min) | 
+|---|------| --- | --- | --- | --- |
+| VM1 | Open5gs 5GC U-Plane1 | 192.168.178.5/24 | Ubuntu 20.04 | 1GB | 20GB |
+| VM2 | Open5gs 5GC U-Plane2 | 192.168.178.6/24 | Ubuntu 20.04 | 1GB | 20GB |
+| VM3 | Open5gs 5GC C-Plane | 192.168.178.7/24  | Ubuntu 20.04 | 1GB | 20GB |
+| VM4 | UERANSIM RAN (gNodeB) | 192.168.178.8/24 | Ubuntu 20.04 | 1GB | 10GB |
+| VM5 | UERANSIM UE | 192.168.178.9/24 | Ubuntu 20.04 | 1GB | 20GB |
+
+AMF and SMF addresses are as follows. 
+
+| NF   | IP address    | IP address on SBI| Supported S-NSSAI |
+|------|-------------- |------------------|-------------------|
+| AMF  | 192.168.178.7 | 127.0.0.5        | SST:1, SD:0x000001 SST:1, SD:0x000002|
+| SMF1 | 192.168.178.11| 127.0.0.4        | SST:1, SD:0x000001|
+| SMF2 | 192.168.178.12| 127.0.0.24       | SST:1, SD:0x000002|
+
+gNodeB Information
+
+| IP address   | Supported S-NSSAI                      |
+|--------------|----------------------------------------|
+| 192.168.178.8| SST:1, SD:0x000001 , SST:1, SD:0x000002|
+
+
+UERANSIM UE Information
+
+| UE  | IMSI           | DNN      | OP/OPc | S-NSSAI            |
+|-----|----------------|----------|--------|--------------------|
+| UE  | 999700000000001| internet | OPc    | SST:1, SD:0x000001 |
+|     |                |          |        | SST:1, SD:0x000002 |
+
+DNs Information
+| DN           | S-NSSAI          | Tunnel interface of DN | DNN      | Tunnel interface of UE | U-Plane # |
+|--------------|------------------|------------------------|----------|------------------------|-----------|
+| 10.45.0.0/16| SST:1 SD:0x000001| ogstun                 | internet | uesimtun0              | U-Plane1  |
+| 10.46.0.0/16| SST:1 SD:0x000002| ogstun                 | internet | uesimtun0              | U-Plane2  |
+
+
+## Changes in configurations	
+
+1. Changes in configuration files of Open5GS 5GC C-Plane
+```bash
+sudo nano etc/open5gs/amf.yaml
+ 
+logger:
+  file: /var/log/open5gs/amf.log
+amf:
+  ngap:
+    server:
+      - address: 192.168.178.7
+        mnc: 70
+      s_nssai:
+        - sst: 1
+          sd: 000001
+        - sst: 1
+          sd: 000002
+```
+
+```bash
+sudo nano etc/open5gs/smf1.yaml   
+logger:
+ # file: /root/open5gs/install/var/log/open5gs/smf1.log
+  file: /var/log/open5gs/smf1.log
+
+smf:
+  
+  pfcp:
+    server:
+      - address: 192.168.178.11
+        dnn: internet
+
+    client:
+      upf:
+        - address: 192.168.178.5
+          dnn: internet
+  gtpc:
+    server:
+      - address: 127.0.0.4
+  gtpu:
+    server:
+      - address: 192.168.178.11
+ 
+  session:
+    - subnet: 10.45.0.1/16
+    
+      dnn: internet
+ 
+ # freeDiameter: /root/open5gs/install/etc/freeDiameter/smf1.conf
+  freeDiameter: /etc/freeDiameter/smf1.conf
+  info:
+    - s_nssai:
+        - sst: 1
+          sd: 000001
+          dnn:
+            #- voip
+             - internet
+
+```
+
+```bash
+sudo nano etc/open5gs/smf2.yaml  
+logger:
+ # file: /root/open5gs/install/var/log/open5gs/smf1.log
+  file: /var/log/open5gs/smf2.log
+
+smf:
+  pfcp:
+    server:
+      - address: 192.168.178.12
+        dnn: internet
+
+    client:
+      upf:
+        - address: 192.168.178.6
+          dnn: internet
+  gtpc:
+    server:
+      - address: 127.0.0.24
+  gtpu:
+    server:
+      - address: 192.168.178.12
+
+  session:
+    - subnet: 10.46.0.1/16
+    
+      dnn: internet
+  
+ # freeDiameter: /root/open5gs/install/etc/freeDiameter/smf1.conf
+  freeDiameter: /etc/freeDiameter/smf2.conf
+  info:
+    - s_nssai:
+        - sst: 1
+          sd: 000002
+          dnn:
+            #- voip
+             - internet 
+``` 
+
+```bash
+sudo nano etc/open5gs/nssf.yaml
+logger:
+  file: /var/log/open5gs/nssf.log
+
+nssf:
+  sbi:
+    server:
+      - address: 127.0.0.14
+        port: 7777
+          s_nssai:
+            sst: 1
+            sd: 000001
+        - addr: 127.0.0.10
+          port: 7777
+          s_nssai:
+            sst: 1
+            sd: 000002   
+``` 
+
+```bash
+sudo nano etc/freeDiameter/smf2.conf  
+#ListenOn = "fe80::21c:5ff:fe98:7d62%eth0";
+ListenOn = "127.0.0.24";
+ 
+``` 
+2. Changes in configuration files of Open5GS 5GC U-Plane1
+```bash
+sudo nano etc/open5gs/upf.yaml 
+logger:
+  file: /var/log/open5gs/upf.log
+#  level: info   # fatal|error|warn|info(default)|debug|trace
+
+upf:
+  pfcp:
+    server:
+      - address: 192.168.178.5
+#    client:
+ #    smf:     #  UPF PFCP Client try to associate SMF PFCP Server
+  #      - address: 127.0.0.4
+  gtpu:
+    server:
+      - address: 192.168.178.5
+  session:
+    - subnet: 10.45.0.1/16
+      dnn: internet
+      dev: ogstun  
+```
+3. Changes in configuration files of Open5GS 5GC U-Plane2
+```bash
+sudo nano etc/open5gs/upf.yaml  
+logger:
+  file: /var/log/open5gs/upf.log
+#  level: info   # fatal|error|warn|info(default)|debug|trace
+
+upf:
+  pfcp:
+    server:
+      - address: 192.168.178.6
+#    client:
+ #    smf:     #  UPF PFCP Client try to associate SMF PFCP Server
+  #      - address: 127.0.0.24
+  gtpu:
+    server:
+      - address: 192.168.178.6
+  # session:
+  #   - subnet: 10.45.0.1/16
+  session:
+    - subnet: 10.46.0.1/16
+      #dnn: voip
+      dnn: internet
+      dev: ogstun 
+```
+4. Changes in configuration files of UERANSIM UE / RAN
+```bash
+UERANSIM/config/open5gs-gnb1.yaml   
+mcc: '999'          # Mobile Country Code value
+mnc: '70'           # Mobile Network Code value (2 or 3 digits)
+
+nci: '0x000000010'  # NR Cell Identity (36-bit)
+idLength: 32        # NR gNB ID length in bits [22...32]
+tac: 1              # Tracking Area Code
+
+linkIp: 192.168.178.8   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+ngapIp: 192.168.178.8    # gNB's local IP address for N2 Interface (Usually same with local IP)
+gtpIp: 192.168.178.8    # gNB's local IP address for N3 Interface (Usually same with local IP)
+
+# List of AMF address information
+amfConfigs:
+  - address: 192.168.178.7
+    port: 38412
+
+# List of supported S-NSSAIs by this gNB
+slices:
+  - sst: 1
+    sd: 000001
+  - sst: 1
+    sd: 000002
+
+```
+5. Changes in configuration files of UE(SST:1, SD:0x000001)
+```bash
+UERANSIM/config/open5gs-ue-sd1.yaml 
+# IMSI number of the UE. IMSI = [MCC|MNC|MSISDN] (In total 15 digits)
+supi: 'imsi-999700000000001'
+gnbSearchList:
+  - 192.168.178.8
+# UAC Access Identities Configuration
+uacAic:
+  mps: false
+  mcs: false
+  sst: 1
+  sd: 000001 
+# Initial PDU sessions to be established
+sessions:
+  - type: 'IPv4'
+    apn: 'internet'
+    slice:
+      sst: 1
+      sd: 000001 
+
+# Configured NSSAI for this UE by HPLMN
+configured-nssai:
+  - sst: 1
+    sd: 000001 
+# Default Configured NSSAI for this UE
+default-nssai:
+  - sst: 1
+    #sd: 1
+    sd: 000001 
+  
+```
+6. Changes in configuration files of UE(SST:1, SD:0x000002)
+```bash
+UERANSIM/config/open5gs-ue-sd2.yaml
+# IMSI number of the UE. IMSI = [MCC|MNC|MSISDN] (In total 15 digits)
+supi: 'imsi-999700000000001'
+gnbSearchList:
+  - 192.168.178.8
+# UAC Access Identities Configuration
+uacAic:
+  mps: false
+  mcs: false
+  sst: 1
+  sd: 000001 
+# Initial PDU sessions to be established
+sessions:
+  - type: 'IPv4'
+    apn: 'internet'
+    slice:
+      sst: 1
+      sd: 000002 
+
+# Configured NSSAI for this UE by HPLMN
+configured-nssai:
+  - sst: 1
+    sd: 000002 
+# Default Configured NSSAI for this UE
+default-nssai:
+  - sst: 1
+    #sd: 1
+    sd: 000002    
+```
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%203/webui%20setup.jpeg" width="700" alt="Figure 3.2 - WebUI Setup">
+  <br>
+</p>
+
+
+
+
+## Testing
+ 1. Run Open5GS 5GC U-Plane1 & U-Plane2
+ ```bash
+ sudo systemctl stop open5gs-mmed
+ sudo systemctl stop open5gs-sgwcd
+ sudo systemctl stop open5gs-smfd
+ sudo systemctl stop open5gs-amfd
+ sudo systemctl stop open5gs-sgwud
+ sudo systemctl stop open5gs-hssd
+ sudo systemctl stop open5gs-pcrfd
+ sudo systemctl stop open5gs-nrfd
+ sudo systemctl stop open5gs-scpd
+ sudo systemctl stop open5gs-seppd
+ sudo systemctl stop open5gs-ausfd
+ sudo systemctl stop open5gs-udmd
+ sudo systemctl stop open5gs-pcfd
+ sudo systemctl stop open5gs-nssfd
+ sudo systemctl stop open5gs-bsfd
+ sudo systemctl stop open5gs-udrd
+ sudo systemctl stop open5gs-webui
+ sudo systemctl start open5gs-upfd
+```
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%203/upf1%20status.jpeg" width="700" alt="Figure 3.3 - UPF status">
+  <br>
+  <sub><sup>Figure 3.3 - UPF status</sup></sub>
+</p>
+
+
+2. Run Open5GS 5GC C-Plane
+```bash
+ sudo systemctl stop open5gs-upfd
+sudo /bin/open5gs-smfd -c /etc/open5gs/smf1.yaml
+sudo /bin/open5gs-smfd -c /etc/open5gs/smf2.yaml
+```
+3. Run tcpdump on U-Plane1 & U-Plane2
+
+```bash
+# tcpdump -i ogstun -n
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ogstun, link-type RAW (Raw IP), capture size 262144 bytes
+```
+4. Run UERANSIM (gNodeB)
+
+```bash
+# Commands to run gnb
+ubuntu@VM4:~/UERANSIM$ sudo build/nr-gnb -c config/gnb1.yaml 
+[sudo] password for ubuntu: 
+UERANSIM v3.2.6
+[2024-02-24 17:03:00.908] [sctp] [info] Trying to establish SCTP connection... (192.168.178.7:38412)
+[2024-02-24 17:03:00.911] [sctp] [info] SCTP connection established (192.168.178.7:38412)
+[2024-02-24 17:03:00.911] [sctp] [debug] SCTP association setup ascId[4]
+[2024-02-24 17:03:00.911] [ngap] [debug] Sending NG Setup Request
+[2024-02-24 17:03:00.916] [ngap] [debug] NG Setup Response received
+[2024-02-24 17:03:00.916] [ngap] [info] NG Setup procedure is successful
+```
+5. Run UERANSIM (UE[SST:1, SD:0x000001])
+
+UE connects to U-Plane1 based on SST:1 and SD:0x000001
+```bash
+# Commands to run ue-sd1
+sudo build/nr-ue -c config/open5gs-ue-sd1.yaml
+```
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%203/ue-sd1%20output.jpeg" width="700" alt="Figure 3.4 - PDU session successful for ue-sd1">
+  <br>
+  <sub><sup>Figure 3.4 - PDU session successful for ue-sd1</sup></sub>
+</p>
+The Figure3.5 shows output for ue-sd1 after running the command - ip addr show
+
+
+6. Run UERANSIM (UE[SST:1, SD:0x000002])
+
+UE connects to U-Plane2 based on SST:1 and SD:0x000002. The UE disconnects from gNodeB and connects to gNodeB using the configuration file for SST:1 and SD:0x000002. Confirm that the packet goes through the DN of U-Plane2 based on SST:1 and SD:0x000002.
+```bash
+# Commands to run ue-sd2
+sudo build/nr-ue -c config/open5gs-ue-sd2.yaml
+```
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%203/open5gs-ue-sd2-output.jpeg" width="700" alt="Figure 3.5 - PDU session successful for ue-sd2">
+  <br>
+  <sub><sup>Figure 3.5 - PDU session successful for ue-sd2</sup></sub>
+</p>
+
+
+## Logging
+
+1. Open5GS C-Plane smf1 log
+```bash
+02/24 16:14:22.406: [app] INFO: Configuration: '/etc/open5gs/smf1.yaml' (../lib/app/ogs-init.c:130)
+02/24 16:14:22.406: [app] INFO: File Logging: '/var/log/open5gs/smf1.log' (../lib/app/ogs-init.c:133)
+02/24 16:14:22.435: [metrics] INFO: metrics_server() [http://127.0.0.4]:9090 (../lib/metrics/prometheus/context.c:299)
+02/24 16:14:22.466: [gtp] INFO: gtp_server() [127.0.0.4]:2123 (../lib/gtp/path.c:30)
+02/24 16:14:22.466: [gtp] INFO: gtp_server() [192.168.178.11]:2152 (../lib/gtp/path.c:30)
+02/24 16:14:22.466: [pfcp] INFO: pfcp_server() [192.168.178.11]:8805 (../lib/pfcp/path.c:30)
+02/24 16:14:22.466: [pfcp] INFO: ogs_pfcp_connect() [192.168.178.5]:8805 (../lib/pfcp/path.c:61)
+02/24 16:14:22.466: [sbi] INFO: NF Service [nsmf-pdusession] (../lib/sbi/context.c:1812)
+02/24 16:14:22.468: [sbi] INFO: nghttp2_server() [http://127.0.0.4]:7777 (../lib/sbi/nghttp2-server.c:414)
+02/24 16:14:22.468: [app] INFO: SMF initialize...done (../src/smf/app.c:31)
+02/24 16:14:22.468: [smf] INFO: PFCP associated [192.168.178.5]:8805 (../src/smf/pfcp-sm.c:196)
+02/24 16:14:22.468: [diam] INFO: CONNECTED TO 'pcrf.localdomain' (SCTP,soc#20): (../lib/diameter/common/logger.c:108)
+02/24 16:14:22.470: [sbi] INFO: [63a9c614-d327-41ee-bca4-95800b4ef20e] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:221)
+02/24 16:14:22.472: [sbi] INFO: [63afc2da-d327-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T16:14:22.471252+01:00 [duration:86400,validity:86399.998831,patch:43199.999415] (../lib/sbi/nnrf-handler.c:708)
+2/24 16:14:22.473: [sbi] INFO: [63afd3f6-d327-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T16:14:22.471682+01:00 [duration:86400,validity:86399.997896,patch:43199.998948] (../lib/sbi/nnrf-handler.c:708)
+02/24 16:14:48.478: [smf] INFO: [Added] Number of SMF-UEs is now 1 (../src/smf/context.c:1019)
+02/24 16:14:48.478: [smf] INFO: [Added] Number of SMF-Sessions is now 1 (../src/smf/context.c:3068)
+02/24 16:14:48.482: [sbi] INFO: [UDM] (SCP-discover) NF registered [4eaa16d2-d323-41ee-a190-1b9f3207f472:1] (../lib/sbi/path.c:211)
+02/24 16:14:48.486: [sbi] INFO: [PCF] (SCP-discover) NF registered [511443f2-d323-41ee-9dd8-af4997f1e35f:1] (../lib/sbi/path.c:211)
+02/24 16:14:48.486: [smf] INFO: UE SUPI[imsi-999700000000001] DNN[internet] IPv4[10.45.0.2] IPv6[] (../src/smf/npcf-handler.c:539)
+02/24 16:14:48.487: [gtp] INFO: gtp_connect() [192.168.178.5]:2152 (../lib/gtp/path.c:60)
+```
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%203/smf1.yaml.jpeg" width="700" alt="Figure 3.6 - smf1 log">
+  <br>
+  <sub><sup>Figure 3.6 - smf1 log</sup></sub>
+</p>
+The Figure3.2 shows webUI configuration.
+
+2. The Open5GS C-Plane log for (UE[SST:1, SD:0x000001])
+
+```bash
+==> /var/log/open5gs/amf.log <==
+02/24 15:45:09.502: [sbi] INFO: [4ebe517e-d323-41ee-b2f9-65db89b2bf83] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:221)
+02/24 15:45:09.514: [sbi] INFO: [4ed6ff58-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.509333+01:00 [duration:86400,validity:86399.995051,patch:43199.997525] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:09.515: [sbi] INFO: [4ed7080e-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.510559+01:00 [duration:86400,validity:86399.995191,patch:43199.997595] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:09.516: [sbi] INFO: [4ed739fa-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.510831+01:00 [duration:86400,validity:86399.994359,patch:43199.997179] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:09.518: [sbi] INFO: [4ed73e28-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.510924+01:00 [duration:86400,validity:86399.992381,patch:43199.996190] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:09.519: [sbi] INFO: [4ed74242-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.511028+01:00 [duration:86400,validity:86399.991641,patch:43199.995820] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:09.520: [sbi] INFO: [4ed7b2cc-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.513928+01:00 [duration:86400,validity:86399.993736,patch:43199.996868] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:09.520: [sbi] INFO: [4ed7b920-d323-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T15:45:09.514070+01:00 [duration:86400,validity:86399.993222,patch:43199.996611] (../lib/sbi/nnrf-handler.c:708)
+02/24 15:45:13.274: [sbi] INFO: (NRF-notify) NF registered [511443f2-d323-41ee-9dd8-af4997f1e35f:1] (../lib/sbi/nnrf-handler.c:924)
+02/24 15:45:13.274: [sbi] INFO: [PCF] (NRF-notify) NF Profile updated [511443f2-d323-41ee-9dd8-af4997f1e35f:1] (../lib/sbi/nnrf-handler.c:938)
+==> /var/log/open5gs/smf1.log <==
+02/23 11:21:34.316: [app] INFO: Signal-NUM[28] received (Window changed) (../src/main.c:63)
+02/23 11:21:34.395: [app] INFO: Signal-NUM[28] received (Window changed) (../src/main.c:63)
+02/23 11:23:34.846: [smf] INFO: [Added] Number of SMF-UEs is now 1 (../src/smf/context.c:1019)
+02/23 11:23:34.846: [smf] INFO: [Added] Number of SMF-Sessions is now 1 (../src/smf/context.c:3068)
+02/23 11:23:34.851: [sbi] INFO: [UDM] (SCP-discover) NF registered [bc1fe4de-d234-41ee-ae5c-a1ff1c7f14fa:1] (../lib/sbi/path.c:211)
+02/23 11:23:34.856: [sbi] INFO: [PCF] (SCP-discover) NF registered [bd8f4580-d234-41ee-8407-db209afe24e5:1] (../lib/sbi/path.c:211)
+02/23 11:23:34.856: [smf] INFO: UE SUPI[imsi-999700000000001] DNN[internet] IPv4[10.45.0.2] IPv6[] (../src/smf/npcf-handler.c:539)
+02/23 11:23:34.857: [gtp] INFO: gtp_connect() [192.168.178.5]:2152 (../lib/gtp/path.c:60)
+02/23 11:23:34.868: [sbi] WARNING: [UDM] (SCP-discover) NF has already been added [bc1fe4de-d234-41ee-ae5c-a1ff1c7f14fa:2] (../lib/sbi/path.c:216)
+```
+3. The tcpdump log on U-Plane1 is as follows.
+```bash
+ubuntu@VM1:~$ sudo tcpdump -i ogstun -n
+[sudo] password for ubuntu: 
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ogstun, link-type RAW (Raw IP), capture size 262144 bytes
+16:19:13.966315 IP6 fe80::c16a:cf9d:adc8:aaaa > ff02::2: ICMP6, router solicitation, length 16
+16:28:45.526307 IP 10.45.0.2 > 142.250.186.174: ICMP echo request, id 2, seq 1, length 64
+```
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%203/ip%20addr%20show%20ue1%20output.jpeg" width="700" alt="Figure 3.7 - ip addr show output for ue-sd1">
+  <br>
+  <sub><sup>Figure 3.7 - ip addr show output for ue-sd1</sup></sub>
+</p>
+The Figure3.7 shows output for ue-sd1 after running the command - ip addr show
+
+4. Open5GS C-Plane smf2 log 
+```bash
+02/24 17:02:43.675: [app] INFO: Configuration: '/etc/open5gs/smf2.yaml' (../lib/app/ogs-init.c:130)
+02/24 17:02:43.675: [app] INFO: File Logging: '/var/log/open5gs/smf2.log' (../lib/app/ogs-init.c:133)
+02/24 17:02:43.707: [metrics] INFO: metrics_server() [http://127.0.0.24]:9090 (../lib/metrics/prometheus/context.c:299)
+02/24 17:02:43.737: [gtp] INFO: gtp_server() [127.0.0.24]:2123 (../lib/gtp/path.c:30)
+02/24 17:02:43.737: [gtp] INFO: gtp_server() [192.168.178.12]:2152 (../lib/gtp/path.c:30)
+02/24 17:02:43.737: [pfcp] INFO: pfcp_server() [192.168.178.12]:8805 (../lib/pfcp/path.c:30)
+02/24 17:02:43.737: [pfcp] INFO: ogs_pfcp_connect() [192.168.178.6]:8805 (../lib/pfcp/path.c:61)
+02/24 17:02:43.737: [sbi] INFO: NF Service [nsmf-pdusession] (../lib/sbi/context.c:1812)
+02/24 17:02:43.738: [sbi] INFO: nghttp2_server() [http://127.0.0.24]:7777 (../lib/sbi/nghttp2-server.c:414)
+02/24 17:02:43.738: [app] INFO: SMF initialize...done (../src/smf/app.c:31)
+02/24 17:02:43.738: [smf] INFO: PFCP associated [192.168.178.6]:8805 (../src/smf/pfcp-sm.c:196)
+02/24 17:02:43.740: [diam] INFO: CONNECTED TO 'pcrf.localdomain' (SCTP,soc#18): (../lib/diameter/common/logger.c:108)
+02/24 17:02:43.741: [sbi] INFO: [24f4a1c6-d32e-41ee-84c0-8f7cd5202b61] NF registered [Heartbeat:10s] (../lib/sbi/nf-sm.c:221)
+02/24 17:02:43.744: [sbi] INFO: [24faac4c-d32e-41ee-9351-1dde8a16ffee] Subscription created until 2024-02-25T17:02:43.742834+01:00 [duration:86400,validity:86399.998779,patch:43199.999389] (../lib/sbi/nnrf-handler.c:708)
+02/24 17:03:55.954: [smf] INFO: [Added] Number of SMF-UEs is now 1 (../src/smf/context.c:1019)
+02/24 17:03:55.954: [smf] INFO: [Added] Number of SMF-Sessions is now 1 (../src/smf/context.c:3068)
+02/24 17:03:55.957: [sbi] INFO: [UDM] (SCP-discover) NF registered [4eaa16d2-d323-41ee-a190-1b9f3207f472:1] (../lib/sbi/path.c:211)
+02/24 17:03:55.961: [sbi] INFO: [PCF] (SCP-discover) NF registered [511443f2-d323-41ee-9dd8-af4997f1e35f:1] (../lib/sbi/path.c:211)
+02/24 17:03:55.961: [smf] INFO: UE SUPI[imsi-999700000000001] DNN[internet] IPv4[10.46.0.2] IPv6[] (../src/smf/npcf-handler.c:539)
+02/24 17:03:55.962: [gtp] INFO: gtp_connect() [192.168.178.6]:2152 (../lib/gtp/path.c:60)
+```
+5. The tcpdump log on U-Plane2 is as follows.
+```bash
+ubuntu@VM2:~$ sudo tcpdump -i ogstun -n
+[sudo] password for ubuntu: 
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ogstun, link-type RAW (Raw IP), capture size 262144 bytes
+16:19:23.536927 IP6 fe80::29a0:b0c:76f4:7a5d > ff02::2: ICMP6, router solicitation, length 16
+16:54:47.443679 IP6 fe80::29a0:b0c:76f4:7a5d > ff02::2: ICMP6, router solicitation, length 16
+17:06:21.962493 IP 10.46.0.2 > 142.250.181.238: ICMP echo request, id 3, seq 1, length 64
+```
+
+
+
+## Milestone 4-Select nearby UPF according to the connected gNodeB
+
+The minimum configuration which is set as a condition is:
+ * The UE selects a pair of SMF and UPF based on S-NSSAI.
+ * 5GC - Open5GS [Open5gs Installation Script](https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Scripts/Milestone%201/Open5GS%20Installation.txt)
+ * UE / RAN - UERANSIM [UERANSIM Installation Script](https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Scripts/Milestone%201/Open5GS%20Installation.txt)
+
+
+| VM # | SW & Role | IP address | OS | Memory (Min) | HDD (Min) | 
+|---|------| --- | --- | --- | --- |
+| VM1 | Open5gs 5GC U-Plane1 | 192.168.178.5/24 | Ubuntu 20.04 | 1GB | 20GB |
+| VM2 | Open5gs 5GC U-Plane2 | 192.168.178.6/24 | Ubuntu 20.04 | 1GB | 20GB |
+| VM3 | Open5gs 5GC C-Plane | 192.168.178.7/24  | Ubuntu 20.04 | 1GB | 20GB |
+| VM4 | UERANSIM RAN (gNodeB1) | 192.168.178.8/24 | Ubuntu 20.04 | 1GB | 10GB |
+| VM5 | UERANSIM UE | 192.168.178.9/24 | Ubuntu 20.04 | 1GB | 20GB |
+| VM6 | UERANSIM RAN (gNodeB2) | 192.168.178.10/24 | Ubuntu 20.04 | 1GB | 10GB |
+
+AMF and SMF addresses are as follows. 
+
+| NF   | IP address    | IP address on SBI| Supported TACs |
+|------|-------------- |------------------|-------------------|
+| AMF  | 192.168.178.7 | 127.0.0.5        | 1,2 |
+| SMF1 | 192.168.178.11| 127.0.0.4        | 1 |
+| SMF2 | 192.168.178.12| 127.0.0.24       | 2 |
+
+gNodeB Information
+
+| gNodeB # | Location # | TAC # | IP address   |
+|----------|------------|-------|--------------|
+| gNodeB1  | Loc1       | 1     | 192.168.178.8|
+| gNodeB2  | Loc2       | 2     | 192.168.178.10|
+
+
+UERANSIM UE Information
+
+| UE  | IMSI           | DNN      | OP/OPc | gNodeB #        |
+|-----|----------------|----------|--------|-----------------|
+| UE  | 999700000000001| internet | OPc    | gNodeB1 in Loc1 |
+|     |                |          |        | gNodeB2 in Loc2 |
+
+DNs Information
+| DN           | Location| Tunnel interface of DN | DNN      | Tunnel interface of UE | U-Plane # |
+|--------------|---------|------------------------|----------|------------------------|-----------|
+| 10.45.0.0/16| Loc1     | ogstun                 | internet | uesimtun0              | U-Plane1  |
+| 10.46.0.0/16| Loc2     | ogstun                 | internet | uesimtun0              | U-Plane2  |
+
+
+## Changes in configurations	
+
+1. Changes in configuration files of Open5GS 5GC C-Plane
+```bash
+sudo nano etc/open5gs/amf.yaml
+logger:
+  file: /var/log/open5gs/amf.log
+amf:
+  ngap:
+    server:
+      - address: 192.168.178.7
+  tai:
+    - plmn_id:
+        mcc: 999
+        mnc: 70
+      tac: [1,2]
+ 
+```
+
+```bash
+sudo nano etc/open5gs/smf1.yaml 
+logger:
+ # file: /root/open5gs/install/var/log/open5gs/smf1.log
+  file: /var/log/open5gs/smf1.log
+
+smf:
+  pfcp:
+    server:
+      - address: 192.168.178.11
+        dnn: internet
+
+    client:
+      upf:
+        - address: 192.168.178.5
+          dnn: internet
+  gtpu:
+    server:
+      - address: 192.168.178.11
+  session:
+    - subnet: 10.45.0.1/16
+      dnn: internet
+ 
+    - s_nssai:
+        - sst: 1
+          sd: 000001
+          dnn:
+            #- voip
+            - internet
+      tai:
+        - plmn_id:
+            mcc: 999
+            mnc: 70
+          tac: 1  
+
+```
+
+```bash
+sudo nano etc/open5gs/smf2.yaml  
+logger:
+ # file: /root/open5gs/install/var/log/open5gs/smf1.log
+  file: /var/log/open5gs/smf2.log
+
+smf:
+  pfcp:
+    server:
+      - address: 192.168.178.12
+        dnn: internet
+
+    client:
+      upf:
+        - address: 192.168.178.6
+          dnn: internet
+  gtpu:
+    server:
+      - address: 192.168.178.12
+  session:
+    - subnet: 10.46.0.1/16
+      dnn: internet
+ 
+    - s_nssai:
+        - sst: 1
+          sd: 000001
+          dnn:
+            #- voip
+            - internet
+      tai:
+        - plmn_id:
+            mcc: 999
+            mnc: 70
+          tac: 2 
+ 
+``` 
+
+```bash
+sudo nano etc/freeDiameter/smf2.conf  
+#ListenOn = "fe80::21c:5ff:fe98:7d62%eth0";
+ListenOn = "127.0.0.24";
+ 
+``` 
+2. Changes in configuration files of Open5GS 5GC U-Plane1
+```bash
+sudo nano etc/open5gs/upf.yaml 
+logger:
+  file: /var/log/open5gs/upf.log
+#  level: info   # fatal|error|warn|info(default)|debug|trace
+
+upf:
+  pfcp:
+    server:
+      - address: 192.168.178.5
+#    client:
+ #    smf:     #  UPF PFCP Client try to associate SMF PFCP Server
+  #      - address: 127.0.0.4
+  gtpu:
+    server:
+      - address: 192.168.178.5
+  session:
+    - subnet: 10.45.0.1/16
+      dnn: internet
+      dev: ogstun  
+```
+3. Changes in configuration files of Open5GS 5GC U-Plane2
+```bash
+sudo nano etc/open5gs/upf.yaml  
+logger:
+  file: /var/log/open5gs/upf.log
+#  level: info   # fatal|error|warn|info(default)|debug|trace
+
+upf:
+  pfcp:
+    server:
+      - address: 192.168.178.6
+#    client:
+ #    smf:     #  UPF PFCP Client try to associate SMF PFCP Server
+  #      - address: 127.0.0.24
+  gtpu:
+    server:
+      - address: 192.168.178.6
+  # session:
+  #   - subnet: 10.45.0.1/16
+  session:
+    - subnet: 10.46.0.1/16
+      #dnn: voip
+      dnn: internet
+      dev: ogstun 
+```
+
+4. Changes in configuration files of RAN (gNodeB1)
+```bash
+UERANSIM/config/open5gs-gnb1.yaml  
+  
+mcc: '999'          # Mobile Country Code value
+mnc: '70'           # Mobile Network Code value (2 or 3 digits)
+
+nci: '0x000000010'  # NR Cell Identity (36-bit)
+idLength: 32        # NR gNB ID length in bits [22...32]
+tac: 1              # Tracking Area Code
+
+linkIp: 192.168.178.8   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+ngapIp: 192.168.178.8    # gNB's local IP address for N2 Interface (Usually same with local IP)
+gtpIp: 192.168.178.8    # gNB's local IP address for N3 Interface (Usually same with local IP)
+
+# List of AMF address information
+amfConfigs:
+  - address: 192.168.178.7
+    port: 38412
+
+# List of supported S-NSSAIs by this gNB
+slices:
+  - sst: 1
+    sd: 000001
+
+```
+
+5. Changes in configuration files of RAN (gNodeB2)
+```bash
+
+UERANSIM/config/open5gs-gnb1.yaml  
+  
+mcc: '999'          # Mobile Country Code value
+mnc: '70'           # Mobile Network Code value (2 or 3 digits)
+
+nci: '0x000000010'  # NR Cell Identity (36-bit)
+idLength: 32        # NR gNB ID length in bits [22...32]
+tac: 2              # Tracking Area Code
+
+linkIp: 192.168.178.10   # gNB's local IP address for Radio Link Simulation (Usually same with local IP)
+ngapIp: 192.168.178.10    # gNB's local IP address for N2 Interface (Usually same with local IP)
+gtpIp: 192.168.178.10    # gNB's local IP address for N3 Interface (Usually same with local IP)
+
+# List of AMF address information
+amfConfigs:
+  - address: 192.168.178.7
+    port: 38412
+
+# List of supported S-NSSAIs by this gNB
+slices:
+  - sst: 1
+    sd: 000001  
+
+```
+6. Changes in configuration files of UE Loc1 (IMSI-999700000000001)
+```bash
+UERANSIM/config/open5gs-ue-loc1.yaml 
+# IMSI number of the UE. IMSI = [MCC|MNC|MSISDN] (In total 15 digits)
+supi: 'imsi-999700000000001'
+# Mobile Country Code value of HPLMN
+mcc: '999'
+# Mobile Network Code value of HPLMN (2 or 3 digits)
+mnc: '70'
+# SUCI Protection Scheme : 0 for Null-scheme, 1 for Profile A and 2 for Profile B
+protectionScheme: 0
+# Home Network Public Key for protecting with SUCI Profile A
+homeNetworkPublicKey: '5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650'
+# Home Network Public Key ID for protecting with SUCI Profile A
+homeNetworkPublicKeyId: 1
+# Routing Indicator
+routingIndicator: '0000'
+
+# Permanent subscription key
+key: '465B5CE8B199B49FAA5F0A2EE238A6BC'
+# Operator code (OP or OPC) of the UE
+op: 'E8ED289DEBA952E4283B54E88E6183CA'
+# This value specifies the OP type and it can be either 'OP' or 'OPC'
+opType: 'OPC'
+# Authentication Management Field (AMF) value
+amf: '8000'
+# IMEI number of the device. It is used if no SUPI is provided
+imei: '356938035643803'
+# IMEISV number of the device. It is used if no SUPI and IMEI is provided
+imeiSv: '4370816125816151'
+
+# List of gNB IP addresses for Radio Link Simulation
+gnbSearchList:
+  - 192.168.178.8
+
+# UAC Access Identities Configuration
+uacAic:
+  mps: false
+  mcs: false
+  sst: 1
+  sd: 000001 
+
+# UAC Access Control Class
+uacAcc:
+  normalClass: 0
+  class11: false
+  class12: false
+  class13: false
+  class14: false
+  class15: false
+
+# Initial PDU sessions to be established
+sessions:
+  - type: 'IPv4'
+    apn: 'internet'
+    slice:
+      sst: 1
+      sd: 000001 
+
+# Configured NSSAI for this UE by HPLMN
+configured-nssai:
+  - sst: 1
+    sd: 000001 
+# Default Configured NSSAI for this UE
+default-nssai:
+  - sst: 1
+    #sd: 1
+    sd: 000001 
+
+```
+7. Changes in configuration files of UE Loc2 (IMSI-999700000000001)
+```bash
+UERANSIM/config/open5gs-ue-loc2.yaml 
+# IMSI number of the UE. IMSI = [MCC|MNC|MSISDN] (In total 15 digits)
+supi: 'imsi-999700000000001'
+# Mobile Country Code value of HPLMN
+mcc: '999'
+# Mobile Network Code value of HPLMN (2 or 3 digits)
+mnc: '70'
+# SUCI Protection Scheme : 0 for Null-scheme, 1 for Profile A and 2 for Profile B
+protectionScheme: 0
+# Home Network Public Key for protecting with SUCI Profile A
+homeNetworkPublicKey: '5a8d38864820197c3394b92613b20b91633cbd897119273bf8e4a6f4eec0a650'
+# Home Network Public Key ID for protecting with SUCI Profile A
+homeNetworkPublicKeyId: 1
+# Routing Indicator
+routingIndicator: '0000'
+
+# Permanent subscription key
+key: '465B5CE8B199B49FAA5F0A2EE238A6BC'
+# Operator code (OP or OPC) of the UE
+op: 'E8ED289DEBA952E4283B54E88E6183CA'
+# This value specifies the OP type and it can be either 'OP' or 'OPC'
+opType: 'OPC'
+# Authentication Management Field (AMF) value
+amf: '8000'
+# IMEI number of the device. It is used if no SUPI is provided
+imei: '356938035643803'
+# IMEISV number of the device. It is used if no SUPI and IMEI is provided
+imeiSv: '4370816125816151'
+
+# List of gNB IP addresses for Radio Link Simulation
+gnbSearchList:
+  - 192.168.178.10
+
+# UAC Access Identities Configuration
+uacAic:
+  mps: false
+  mcs: false
+  sst: 1
+  sd: 000001 
+
+# UAC Access Control Class
+uacAcc:
+  normalClass: 0
+  class11: false
+  class12: false
+  class13: false
+  class14: false
+  class15: false
+
+# Initial PDU sessions to be established
+sessions:
+  - type: 'IPv4'
+    apn: 'internet'
+    slice:
+      sst: 1
+      sd: 000001 
+
+# Configured NSSAI for this UE by HPLMN
+configured-nssai:
+  - sst: 1
+    sd: 000001 
+# Default Configured NSSAI for this UE
+default-nssai:
+  - sst: 1
+    #sd: 1
+    sd: 000001 
+
+```
+
+## Testing
+ 1. Run Open5GS 5GC U-Plane1 & U-Plane2
+ ```bash
+ sudo systemctl stop open5gs-mmed
+ sudo systemctl stop open5gs-sgwcd
+ sudo systemctl stop open5gs-smfd
+ sudo systemctl stop open5gs-amfd
+ sudo systemctl stop open5gs-sgwud
+ sudo systemctl stop open5gs-hssd
+ sudo systemctl stop open5gs-pcrfd
+ sudo systemctl stop open5gs-nrfd
+ sudo systemctl stop open5gs-scpd
+ sudo systemctl stop open5gs-seppd
+ sudo systemctl stop open5gs-ausfd
+ sudo systemctl stop open5gs-udmd
+ sudo systemctl stop open5gs-pcfd
+ sudo systemctl stop open5gs-nssfd
+ sudo systemctl stop open5gs-bsfd
+ sudo systemctl stop open5gs-udrd
+ sudo systemctl stop open5gs-webui
+ sudo systemctl start open5gs-upfd
+```
+
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/UPF1.jpg" width="700" alt="Figure 4.2 - UPF1 status">
+  <br>
+  <sub><sup>Figure 4.1 - UPF 1status</sup></sub>
+</p>
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/UPF2.jpg" width="700" alt="Figure 4.3 - UPF2 status">
+  <br>
+  <sub><sup>Figure 4.2 - UPF 2 status</sup></sub>
+</p>
+
+
+2. Run Open5GS 5GC C-Plane
+```bash
+ sudo systemctl stop open5gs-upfd
+sudo /bin/open5gs-smfd -c /etc/open5gs/smf1.yaml
+sudo /bin/open5gs-smfd -c /etc/open5gs/smf2.yaml
+```
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/SMF1.jpg" width="700" alt="Figure 4.4 - smf1 log">
+  <br>
+  <sub><sup>Figure 4.3 - smf1 log</sup></sub>
+</p>
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/SMF2.jpg" width="700" alt="Figure 4.5 - smf2 log">
+  <br>
+  <sub><sup>Figure 4.4 - smf2 log</sup></sub>
+</p>
+
+
+3. Run tcpdump on U-Plane1 & U-Plane2
+
+```bash
+# tcpdump -i ogstun -n
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on ogstun, link-type RAW (Raw IP), capture size 262144 bytes
+```
+
+4. Run UERANSIM (gNodeB1 and gNodeB2)
+
+```bash
+# Start gNodeB1 with TAC=1 in Loc1
+sudo build/nr-gnb -c config/gnb1.yaml
+```
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/gNB1.jpg" width="700" alt="Figure 4.6 - gnb1 output">
+  <br>
+  <sub><sup>Figure 4.6 - gnb1 output</sup></sub>
+</p>
+
+
+```bash
+# Start gNodeB1 with TAC=2 in Loc2
+sudo build/nr-gnb -c config/gnb1.yaml
+```
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/gNB2.jpg" width="700" alt="Figure 4.7 - gnb1 output">
+  <br>
+  <sub><sup>Figure 4.7 - gnb1 output</sup></sub>
+</p>
+
+
+
+5. Run UERANSIM (UE in Loc1 and Loc2)
+
+```bash
+# Commands to run ue-loc1
+sudo build/nr-ue -c config/open5gs-ue-loc1.yaml
+```
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/UE%20loc1.jpg" width="700" alt="Figure 4.8 - ue-loc1 output">
+  <br>
+  <sub><sup>Figure 4.8 - ue-loc1 output</sup></sub>
+</p>
+
+```bash
+# Commands to run ue-loc2
+sudo build/nr-ue -c config/open5gs-ue-loc2.yaml
+```
+
+<p align="center">
+  <img src="https://github.com/FRA-UAS/mobcomwise23-24-team_open5gs/blob/main/Figures/Screenshorts/Milestone%204/UE%20loc2.jpg" width="700" alt="Figure 4.9 - ue-loc2 output">
+  <br>
+  <sub><sup>Figure 4.9 - ue-loc2 output</sup></sub>
+</p>
+
+
+
+
+## Logging
+
+1. Open5GS C-Plane log
+```bash
+ubuntu@ubuntu-VirtualBox:~$ sudo tail -f /var/log/open5gs/amf.log
+02/25 13:11:58.574: [amf] INFO: gNB-N2[192.168.178.10] connection refused!!! (../src/amf/amf-sm.c:793)
+02/25 13:11:58.574: [amf] INFO: [Removed] Number of gNBs is now 0 (../src/amf/context.c:1258)
+02/25 13:11:58.575: [amf] ERROR: [1:0] No SmContextUpdateError [500] (../src/amf/nsmf-handler.c:866)
+02/25 13:11:58.575: [amf] ERROR: gNB has already been removed (../src/amf/ngap-path.c:672)
+02/25 13:11:58.575: [amf] ERROR: ngap_send_error_indication2: Expectation `rv == OGS_OK' failed. (../src/amf/ngap-path.c:709)
+02/25 13:11:58.575: [amf] ERROR: amf_nsmf_pdusession_handle_update_sm_context: Expectation `r == OGS_OK' failed. (../src/amf/nsmf-handler.c:870)
+02/25 13:11:58.575: [amf] ERROR: AMF_SESS_CLEAR (../src/amf/amf-sm.c:484)
+02/25 13:11:58.575: [amf] INFO: [Removed] Number of AMF-Sessions is now 0 (../src/amf/context.c:2578)
+02/25 13:15:23.225: [sbi] INFO: (NRF-notify) NF registered [8cfd0c78-d3d7-41ee-a676-c3e38cabe5fe:1] (../lib/sbi/nnrf-handler.c:924)
+02/25 13:15:23.225: [sbi] INFO: [SMF] (NRF-notify) NF Profile updated [8cfd0c78-d3d7-41ee-a676-c3e38cabe5fe:1] (../lib/sbi/nnrf-handler.c:938)
+02/25 13:15:45.576: [amf] INFO: gNB-N2 accepted[192.168.178.8]:45683 in ng-path module (../src/amf/ngap-sctp.c:113)
+02/25 13:15:45.576: [amf] INFO: gNB-N2 accepted[192.168.178.8] in master_sm module (../src/amf/amf-sm.c:741)
+02/25 13:15:45.581: [amf] INFO: [Added] Number of gNBs is now 1 (../src/amf/context.c:1231)
+02/25 13:15:45.581: [amf] INFO: gNB-N2[192.168.178.8] max_num_of_ostreams : 10 (../src/amf/amf-sm.c:780)
+02/25 13:15:54.542: [amf] INFO: gNB-N2 accepted[192.168.178.10]:42600 in ng-path module (../src/amf/ngap-sctp.c:113)
+02/25 13:15:54.542: [amf] INFO: gNB-N2 accepted[192.168.178.10] in master_sm module (../src/amf/amf-sm.c:741)
+02/25 13:15:54.547: [amf] INFO: [Added] Number of gNBs is now 2 (../src/amf/context.c:1231)
+02/25 13:15:54.547: [amf] INFO: gNB-N2[192.168.178.10] max_num_of_ostreams : 10 (../src/amf/amf-sm.c:780)
+02/25 13:16:05.955: [amf] INFO: InitialUEMessage (../src/amf/ngap-handler.c:401)
+02/25 13:16:05.956: [amf] INFO: [Added] Number of gNB-UEs is now 2 (../src/amf/context.c:2550)
+02/25 13:16:05.956: [amf] INFO:     RAN_UE_NGAP_ID[1] AMF_UE_NGAP_ID[32] TAC[1] CellID[0x10] (../src/amf/ngap-handler.c:562)
+02/25 13:16:05.956: [amf] INFO: [suci-0-999-70-0000-0-0-0000000001] known UE by SUCI (../src/amf/context.c:1833)
+02/25 13:16:05.956: [amf] ERROR: gNB has already been removed (../src/amf/ngap-path.c:56)
+02/25 13:16:05.956: [amf] ERROR: ngap_send_to_ran_ue: Expectation `rv == OGS_OK' failed. (../src/amf/ngap-path.c:95)
+02/25 13:16:05.956: [amf] ERROR: ngap_delayed_send_to_ran_ue: Expectation `rv == OGS_OK' failed. (../src/amf/ngap-path.c:123)
+02/25 13:16:05.956: [amf] ERROR: ngap_send_ran_ue_context_release_command: Expectation `rv == OGS_OK' failed. (../src/amf/ngap-path.c:384)
+02/25 13:16:05.956: [amf] ERROR: amf_state_operational: Expectation `r == OGS_OK' failed. (../src/amf/amf-sm.c:949)
+02/25 13:16:05.956: [gmm] INFO: Registration request (../src/amf/gmm-sm.c:1165)
+02/25 13:16:05.956: [gmm] INFO: [suci-0-999-70-0000-0-0-0000000001]    SUCI (../src/amf/gmm-handler.c:166)
+02/25 13:16:06.174: [gmm] INFO: [imsi-999700000000001] Registration complete (../src/amf/gmm-sm.c:2146)
+02/25 13:16:06.174: [amf] INFO: [imsi-999700000000001] Configuration update command (../src/amf/nas-path.c:612)
+02/25 13:16:06.174: [gmm] INFO:     UTC [2024-02-25T12:16:06] Timezone[0]/DST[0] (../src/amf/gmm-build.c:559)
+02/25 13:16:06.174: [gmm] INFO:     LOCAL [2024-02-25T13:16:06] Timezone[3600]/DST[0] (../src/amf/gmm-build.c:564)
+02/25 13:16:06.175: [amf] INFO: [Added] Number of AMF-Sessions is now 1 (../src/amf/context.c:2571)
+02/25 13:16:06.175: [gmm] INFO: UE SUPI[imsi-999700000000001] DNN[internet] S_NSSAI[SST:1 SD:0x1] smContextRef [NULL] (../src/amf/gmm-handler.c:1241)
+02/25 13:16:06.175: [gmm] INFO: SMF Instance [8cfd0c78-d3d7-41ee-a676-c3e38cabe5fe] (../src/amf/gmm-handler.c:1280)
+02/25 13:16:06.191: [amf] INFO: [imsi-999700000000001:1:11][0:0:NULL] /nsmf-pdusession/v1/sm-contexts/{smContextRef}/modify (../src/amf/nsmf-handler.c:837)
+02/25 13:16:15.195: [sbi] INFO: (NRF-notify) NF registered [abf4cf30-d3d7-41ee-8c6a-57981ca597e4:1] (../lib/sbi/nnrf-handler.c:924)
+02/25 13:16:15.195: [sbi] INFO: [SMF] (NRF-notify) NF Profile updated [abf4cf30-d3d7-41ee-8c6a-57981ca597e4:1] (../lib/sbi/nnrf-handler.c:938)
+02/25 13:16:22.783: [amf] INFO: InitialUEMessage (../src/amf/ngap-handler.c:401)
+02/25 13:16:22.783: [amf] INFO: [Added] Number of gNB-UEs is now 3 (../src/amf/context.c:2550)
+02/25 13:16:22.783: [amf] INFO:     RAN_UE_NGAP_ID[1] AMF_UE_NGAP_ID[33] TAC[2] CellID[0x10] (../src/amf/ngap-handler.c:562)
+02/25 13:16:22.783: [amf] INFO: [suci-0-999-70-0000-0-0-0000000001] known UE by SUCI (../src/amf/context.c:1833)
+02/25 13:16:22.783: [gmm] INFO: Registration request (../src/amf/gmm-sm.c:1165)
+02/25 13:16:22.783: [gmm] INFO: [suci-0-999-70-0000-0-0-0000000001]    SUCI (../src/amf/gmm-handler.c:166)
+02/25 13:16:22.784: [amf] INFO: UE Context Release [Action:1] (../src/amf/ngap-handler.c:1698)
+02/25 13:16:22.784: [amf] INFO:     RAN_UE_NGAP_ID[1] AMF_UE_NGAP_ID[32] (../src/amf/ngap-handler.c:1699)
+02/25 13:16:22.784: [amf] INFO: [Removed] Number of gNB-UEs is now 2 (../src/amf/context.c:2557)
+02/25 13:16:22.788: [amf] INFO: [imsi-999700000000001:1] Release SM context [204] (../src/amf/amf-sm.c:491)
+02/25 13:16:22.788: [amf] INFO: [imsi-999700000000001:1] Release SM Context [state:31] (../src/amf/nsmf-handler.c:1027)
+02/25 13:16:22.788: [amf] INFO: [Removed] Number of AMF-Sessions is now 0 (../src/amf/context.c:2578)
+02/25 13:16:23.010: [gmm] INFO: [imsi-999700000000001] Registration complete (../src/amf/gmm-sm.c:2146)
+02/25 13:16:23.010: [amf] INFO: [imsi-999700000000001] Configuration update command (../src/amf/nas-path.c:612)
+02/25 13:16:23.010: [gmm] INFO:     UTC [2024-02-25T12:16:23] Timezone[0]/DST[0] (../src/amf/gmm-build.c:559)
+02/25 13:16:23.010: [gmm] INFO:     LOCAL [2024-02-25T13:16:23] Timezone[3600]/DST[0] (../src/amf/gmm-build.c:564)
+02/25 13:16:23.010: [amf] INFO: [Added] Number of AMF-Sessions is now 1 (../src/amf/context.c:2571)
+02/25 13:16:23.010: [gmm] INFO: UE SUPI[imsi-999700000000001] DNN[internet] S_NSSAI[SST:1 SD:0x1] smContextRef [NULL] (../src/amf/gmm-handler.c:1241)
+02/25 13:16:23.010: [gmm] INFO: SMF Instance [abf4cf30-d3d7-41ee-8c6a-57981ca597e4] (../src/amf/gmm-handler.c:1280)
+02/25 13:16:23.030: [amf] INFO: [imsi-999700000000001:1:11][0:0:NULL] /nsmf-pdusession/v1/sm-contexts/{smContextRef}/modify (../src/amf/nsmf-handler.c:837)
+02/25 13:16:35.964: [amf] WARNING: Implicit NG release (../src/amf/amf-sm.c:853)
+02/25 13:16:35.965: [amf] WARNING:     RAN_UE_NGAP_ID[2] AMF_UE_NGAP_ID[31] (../src/amf/amf-sm.c:854)
+02/25 13:16:35.965: [amf] INFO: UE Context Release [Action:1] (../src/amf/ngap-handler.c:1698)
+02/25 13:16:35.965: [amf] INFO:     RAN_UE_NGAP_ID[2] AMF_UE_NGAP_ID[31] (../src/amf/ngap-handler.c:1699)
+02/25 13:16:35.965: [amf] INFO: [Removed] Number of gNB-UEs is now 1 (../src/amf/context.c:2557)
+02/25 13:16:36.770: [amf] INFO: InitialUEMessage (../src/amf/ngap-handler.c:401)
+02/25 13:16:36.770: [amf] INFO: [Added] Number of gNB-UEs is now 2 (../src/amf/context.c:2550)
+02/25 13:16:36.770: [amf] INFO: Unknown UE by 5G-S_TMSI[AMF_ID:0x20040,M_TMSI:0xc0000708] (../src/amf/ngap-handler.c:479)
+02/25 13:16:36.770: [amf] INFO:     RAN_UE_NGAP_ID[2] AMF_UE_NGAP_ID[34] TAC[1] CellID[0x10] (../src/amf/ngap-handler.c:562)
+02/25 13:16:36.770: [amf] INFO: Unknown UE by 5G-S_TMSI[AMF_ID:0x20040,M_TMSI:0xc0000708] (../src/amf/context.c:1900)
+02/25 13:16:36.770: [amf] INFO: [Added] Number of AMF-UEs is now 2 (../src/amf/context.c:1616)
+02/25 13:16:36.770: [gmm] INFO: Service request (../src/amf/gmm-sm.c:1283)
+02/25 13:16:36.770: [gmm] INFO: [(null)] Handling service request failed [Not registered] (../src/amf/gmm-sm.c:1286)
+02/25 13:16:36.771: [amf] INFO: UE Context Release [Action:3] (../src/amf/ngap-handler.c:1698)
+02/25 13:16:36.771: [amf] INFO:     RAN_UE_NGAP_ID[2] AMF_UE_NGAP_ID[34] (../src/amf/ngap-handler.c:1699)
+02/25 13:16:36.771: [amf] INFO:     SUCI[Unknown] (../src/amf/ngap-handler.c:1702)
+02/25 13:16:36.771: [amf] INFO: [Removed] Number of gNB-UEs is now 1 (../src/amf/context.c:2557)
+02/25 13:16:36.771: [amf] INFO: [Removed] Number of AMF-UEs is now 1 (../src/amf/context.c:1709)
+02/25 13:16:36.975: [amf] INFO: InitialUEMessage (../src/amf/ngap-handler.c:401)
+02/25 13:16:36.975: [amf] INFO: [Added] Number of gNB-UEs is now 2 (../src/amf/context.c:2550)
+02/25 13:16:36.975: [amf] INFO:     RAN_UE_NGAP_ID[3] AMF_UE_NGAP_ID[35] TAC[1] CellID[0x10] (../src/amf/ngap-handler.c:562)
+02/25 13:16:36.975: [amf] INFO: [suci-0-999-70-0000-0-0-0000000001] known UE by SUCI (../src/amf/context.c:1833)
+02/25 13:16:36.975: [gmm] INFO: Registration request (../src/amf/gmm-sm.c:1165)
+02/25 13:16:36.975: [gmm] INFO: [suci-0-999-70-0000-0-0-0000000001]    SUCI (../src/amf/gmm-handler.c:166)
+02/25 13:16:36.977: [amf] INFO: UE Context Release [Action:1] (../src/amf/ngap-handler.c:1698)
+02/25 13:16:36.977: [amf] INFO:     RAN_UE_NGAP_ID[1] AMF_UE_NGAP_ID[33] (../src/amf/ngap-handler.c:1699)
+02/25 13:16:36.977: [amf] INFO: [Removed] Number of gNB-UEs is now 1 (../src/amf/context.c:2557)
+02/25 13:16:36.983: [amf] INFO: [imsi-999700000000001:1] Release SM context [204] (../src/amf/amf-sm.c:491)
+02/25 13:16:36.983: [amf] INFO: [imsi-999700000000001:1] Release SM Context [state:31] (../src/amf/nsmf-handler.c:1027)
+02/25 13:16:36.983: [amf] INFO: [Removed] Number of AMF-Sessions is now 0 (../src/amf/context.c:2578)
+02/25 13:16:37.248: [gmm] INFO: [imsi-999700000000001] Registration complete (../src/amf/gmm-sm.c:2146)
+02/25 13:16:37.248: [amf] INFO: [imsi-999700000000001] Configuration update command (../src/amf/nas-path.c:612)
+02/25 13:16:37.248: [gmm] INFO:     UTC [2024-02-25T12:16:37] Timezone[0]/DST[0] (../src/amf/gmm-build.c:559)
+02/25 13:16:37.248: [gmm] INFO:     LOCAL [2024-02-25T13:16:37] Timezone[3600]/DST[0] (../src/amf/gmm-build.c:564)
+02/25 13:16:55.202: [amf] INFO: InitialUEMessage (../src/amf/ngap-handler.c:401)
+02/25 13:16:55.202: [amf] INFO: [Added] Number of gNB-UEs is now 2 (../src/amf/context.c:2550)
+02/25 13:16:55.202: [amf] INFO: Unknown UE by 5G-S_TMSI[AMF_ID:0x20040,M_TMSI:0xc00001c5] (../src/amf/ngap-handler.c:479)
+02/25 13:16:55.202: [amf] INFO:     RAN_UE_NGAP_ID[2] AMF_UE_NGAP_ID[36] TAC[2] CellID[0x10] (../src/amf/ngap-handler.c:562)
+02/25 13:16:55.202: [amf] INFO: Unknown UE by 5G-S_TMSI[AMF_ID:0x20040,M_TMSI:0xc00001c5] (../src/amf/context.c:1900)
+02/25 13:16:55.202: [amf] INFO: [Added] Number of AMF-UEs is now 2 (../src/amf/context.c:1616)
+02/25 13:16:55.202: [gmm] INFO: Service request (../src/amf/gmm-sm.c:1283)
+02/25 13:16:55.202: [gmm] INFO: [(null)] Handling service request failed [Not registered] (../src/amf/gmm-sm.c:1286)
+02/25 13:16:55.203: [amf] INFO: UE Context Release [Action:3] (../src/amf/ngap-handler.c:1698)
+02/25 13:16:55.203: [amf] INFO:     RAN_UE_NGAP_ID[2] AMF_UE_NGAP_ID[36] (../src/amf/ngap-handler.c:1699)
+02/25 13:16:55.203: [amf] INFO:     SUCI[Unknown] (../src/amf/ngap-handler.c:1702)
+02/25 13:16:55.203: [amf] INFO: [Removed] Number of gNB-UEs is now 1 (../src/amf/context.c:2557)
+02/25 13:16:55.203: [amf] INFO: [Removed] Number of AMF-UEs is now 1 (../src/amf/context.c:1709)
+02/25 13:16:55.410: [amf] INFO: InitialUEMessage (../src/amf/ngap-handler.c:401)
+02/25 13:16:55.410: [amf] INFO: [Added] Number of gNB-UEs is now 2 (../src/amf/context.c:2550)
+02/25 13:16:55.410: [amf] INFO:     RAN_UE_NGAP_ID[3] AMF_UE_NGAP_ID[37] TAC[2] CellID[0x10] (../src/amf/ngap-handler.c:562)
+02/25 13:16:55.410: [amf] INFO: [suci-0-999-70-0000-0-0-0000000001] known UE by SUCI (../src/amf/context.c:1833)
+02/25 13:16:55.410: [gmm] INFO: Registration request (../src/amf/gmm-sm.c:1165)
+02/25 13:16:55.410: [gmm] INFO: [suci-0-999-70-0000-0-0-0000000001]    SUCI (../src/amf/gmm-handler.c:166)
+02/25 13:16:55.411: [amf] INFO: UE Context Release [Action:1] (../src/amf/ngap-handler.c:1698)
+02/25 13:16:55.411: [amf] INFO:     RAN_UE_NGAP_ID[3] AMF_UE_NGAP_ID[35] (../src/amf/ngap-handler.c:1699)
+02/25 13:16:55.411: [amf] INFO: [Removed] Number of gNB-UEs is now 1 (../src/amf/context.c:2557)
+02/25 13:16:55.638: [gmm] INFO: [imsi-999700000000001] Registration complete (../src/amf/gmm-sm.c:2146)
+02/25 13:16:55.638: [amf] INFO: [imsi-999700000000001] Configuration update command (../src/amf/nas-path.c:612)
+02/25 13:16:55.638: [gmm] INFO:     UTC [2024-02-25T12:16:55] Timezone[0]/DST[0] (../src/amf/gmm-build.c:559)
+02/25 13:16:55.638: [gmm] INFO:     LOCAL [2024-02-25T13:16:55] Timezone[3600]/DST[0] (../src/amf/gmm-build.c:564)
+02/25 13:18:53.907: [amf] INFO: gNB-N2[192.168.178.8] connection refused!!! (../src/amf/amf-sm.c:793)
+02/25 13:18:53.908: [amf] INFO: [Removed] Number of gNBs is now 1 (../src/amf/context.c:1258)
+02/25 13:19:09.229: [amf] INFO: gNB-N2[192.168.178.10] connection refused!!! (../src/amf/amf-sm.c:793)
+02/25 13:19:09.230: [amf] INFO: [Removed] Number of gNB-UEs is now 0 (../src/amf/context.c:2557)
+02/25 13:19:09.230: [amf] INFO: [Removed] Number of gNBs is now 0 (../src/amf/context.c:1258)
+
+
+
+
+
+```
+
+2. The log on U-Plane1 is as follows.
+```bash
+ubuntu@VM1:~$ sudo tail -f /var/log/open5gs/upf.log
+02/25 13:02:46.541: [upf] INFO: PFCP associated [192.168.178.11]:8805 (../src/upf/pfcp-sm.c:184)
+02/25 13:05:19.914: [upf] INFO: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:208)
+02/25 13:05:19.914: [gtp] INFO: gtp_connect() [192.168.178.11]:2152 (../lib/gtp/path.c:60)
+02/25 13:05:19.914: [upf] INFO: UE F-SEID[UP:0x57f CP:0x257] APN[internet] PDN-Type[1] IPv4[10.45.0.2] IPv6[] (../src/upf/context.c:485)
+02/25 13:05:19.914: [upf] INFO: UE F-SEID[UP:0x57f CP:0x257] APN[internet] PDN-Type[1] IPv4[10.45.0.2] IPv6[] (../src/upf/context.c:485)
+02/25 13:05:19.919: [gtp] INFO: gtp_connect() [192.168.178.8]:2152 (../lib/gtp/path.c:60)
+02/25 13:08:42.153: [upf] INFO: [Removed] Number of UPF-sessions is now 0 (../src/upf/context.c:252)
+02/25 13:11:09.304: [pfcp] WARNING: [46] LOCAL  No Reponse. Give up! for step 1 type 1 peer [192.168.178.11]:8805 (../lib/pfcp/xact.c:606)
+02/25 13:11:09.304: [upf] WARNING: No Heartbeat from SMF [192.168.178.11]:8805 (../src/upf/pfcp-sm.c:329)
+02/25 13:11:09.304: [upf] INFO: PFCP de-associated [192.168.178.11]:8805 (../src/upf/pfcp-sm.c:199)
+02/25 13:15:23.252: [upf] INFO: PFCP associated [192.168.178.11]:8805 (../src/upf/pfcp-sm.c:184)
+02/25 13:15:23.253: [pfcp] ERROR: Remote PFCP restarted [3917851366<3917852123] in Heartbeat REQ (../lib/pfcp/handler.c:39)
+02/25 13:15:23.253: [upf] ERROR: PFCP restoration (../src/upf/pfcp-sm.c:238)
+02/25 13:16:06.210: [upf] INFO: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:208)
+02/25 13:16:06.210: [upf] INFO: UE F-SEID[UP:0x12d CP:0x7f7] APN[internet] PDN-Type[1] IPv4[10.45.0.2] IPv6[] (../src/upf/context.c:485)
+02/25 13:16:06.210: [upf] INFO: UE F-SEID[UP:0x12d CP:0x7f7] APN[internet] PDN-Type[1] IPv4[10.45.0.2] IPv6[] (../src/upf/context.c:485)
+02/25 13:16:22.812: [upf] INFO: [Removed] Number of UPF-sessions is now 0 (../src/upf/context.c:252)
+
+```
+
+3. The log on U-Plane2 is as follows.
+```bash
+ubuntu@VM2:~$ sudo tail -f /var/log/open5gs/upf.log
+02/25 13:09:52.536: [pfcp] ERROR: Remote PFCP restarted [3917851711<3917851792] in Heartbeat REQ (../lib/pfcp/handler.c:39)
+02/25 13:09:52.536: [upf] INFO: DELETION: F-SEID[UP:0x828 CP:0x3af] IPv4[10.46.0.2] IPv6[] (../src/upf/pfcp-sm.c:365)
+02/25 13:09:52.536: [upf] INFO: [Removed] Number of UPF-sessions is now 0 (../src/upf/context.c:252)
+02/25 13:09:52.536: [upf] ERROR: PFCP restoration (../src/upf/pfcp-sm.c:238)
+02/25 13:10:02.533: [upf] INFO: [Added] Number of UPF-Sessions is now 1 (../src/upf/context.c:208)
+02/25 13:10:02.534: [upf] INFO: UE F-SEID[UP:0xf5d CP:0x9cc] APN[internet] PDN-Type[1] IPv4[10.46.0.2] IPv6[] (../src/upf/context.c:485)
+02/25 13:10:02.534: [upf] INFO: UE F-SEID[UP:0xf5d CP:0x9cc] APN[internet] PDN-Type[1] IPv4[10.46.0.2] IPv6[] (../src/upf/context.c:485)
+```
+
+
+
